@@ -67,36 +67,43 @@ const LIFECYCLES = [
   { id:"unknown", label:"Oklassificerad / vet ej", reply:"~7.5%", strategy:"Behandla som kall lead. 3 steg med gradvis uppbyggnad." },
 ];
 
+const GOALS = [
+  { id:"meeting", label:"Boka möte", icon:"📅", tip:"Prioriterar approaches med hög mötes-konvertering: Social/casual (32%), Samarbete (56% svar→möte), Kandidat-pitch (59% svar→möte)." },
+  { id:"reply", label:"Öppna dialog / få svar", icon:"💬", tip:"Prioriterar hög svarsfrekvens: Mötesfråga (26%), Social/casual (31.5%), Uppföljning (15.4%)." },
+];
 
 
-function buildUserPrompt(role, region, industry, lifecycle, name, company, context, humor, warmth, directness) {
+function buildUserPrompt(role, region, industry, lifecycle, goal, name, company, context, humor, warmth, directness) {
   const r = ROLES.find(x => x.id === role);
   const reg = REGIONS.find(x => x.id === region);
   const ind = INDUSTRIES.find(x => x.id === industry);
   const lc = LIFECYCLES.find(x => x.id === lifecycle);
-
+  const gl = GOALS.find(x => x.id === goal);
+  
   const humorLabels = {1:"Seriös", 2:"Lite humor", 3:"Lekfull"};
   const warmthLabels = {1:"Affärsmässig", 2:"Vänlig", 3:"Personlig"};
   const directLabels = {1:"Mjuk", 2:"Balanserad", 3:"Rakt på"};
-
+  
   let prompt = `Generera en mailsekvens för:\n\n`;
   prompt += `ROLL: ${r?.label || role}\n`;
   prompt += `REGION: ${reg?.label || region}\n`;
   prompt += `BRANSCH: ${ind?.label || industry}\n`;
   prompt += `KONTAKTNIVÅ: ${lc?.label || lifecycle} (${lc?.reply || '?'} svar)\n`;
+  prompt += `MÅL: ${gl?.label || goal}\n`;
   if (name) prompt += `KONTAKTPERSON: ${name}\n`;
   if (company) prompt += `FÖRETAG: ${company}\n`;
   if (context) prompt += `EXTRA KONTEXT: ${context}\n`;
-
+  
   prompt += `\nTON: Humor=${humor} (${humorLabels[humor]}), Värme=${warmth} (${warmthLabels[warmth]}), Rakhet=${directness} (${directLabels[directness]})\n`;
-
+  
   prompt += `\nRegiondata: ${reg?.note || ''}\n`;
   prompt += `Rolldata: ${r?.strategy || ''}\n`;
   prompt += `Branschens svarsfrekvens: ${ind?.reply || 'okänd'}\n`;
   prompt += `Kontaktnivå: ${lc?.strategy || 'Behandla som kall lead.'}\n`;
-
-  prompt += `\nKom ihåg: Syftet är att boka möte men svarsfrekvens är också viktigt. KRITISKT: Hitta ALDRIG på namn. Mottagare = [Förnamn], avsändare = [Ditt namn]. Använd rätt approach för just denna kombination av roll × bransch × region. Tonen ska följa användarens val men strategin styrs av datan. INGA talstreck (— –) i texten. Svara BARA med JSON.`;
-
+  prompt += `Målstrategi: ${gl?.tip || ''}\n`;
+  
+  prompt += `\nKom ihåg: Syftet är att boka möte. Använd rätt approach för just denna kombination av roll × bransch × region. Tonen ska följa användarens val men strategin styrs av datan. INGA talstreck (— –) i texten. Svara BARA med JSON.`;
+  
   return prompt;
 }
 
@@ -186,6 +193,7 @@ export default function MailGenerator() {
   const [region, setRegion] = useState("");
   const [industry, setIndustry] = useState("");
   const [lifecycle, setLifecycle] = useState("");
+  const [goal, setGoal] = useState("");
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [context, setContext] = useState("");
@@ -198,7 +206,7 @@ export default function MailGenerator() {
   const [warmth, setWarmth] = useState(2);
   const [directness, setDirectness] = useState(2);
 
-  const canGenerate = role && region && industry && lifecycle;
+  const canGenerate = role && region && industry && lifecycle && goal;
 
   async function generate() {
     setLoading(true);
@@ -209,7 +217,7 @@ export default function MailGenerator() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userPrompt: buildUserPrompt(role, region, industry, lifecycle, name, company, context, humor, warmth, directness)
+          userPrompt: buildUserPrompt(role, region, industry, lifecycle, goal, name, company, context, humor, warmth, directness)
         })
       });
       const data = await response.json();
@@ -283,6 +291,7 @@ Svara BARA med JSON för ETT steg:
   const selectedRegion = REGIONS.find(r => r.id === region);
   const selectedIndustry = INDUSTRIES.find(r => r.id === industry);
   const selectedLifecycle = LIFECYCLES.find(r => r.id === lifecycle);
+  const selectedGoal = GOALS.find(r => r.id === goal);
 
   return (
     <div style={{ background: P.bg, minHeight: "100vh", color: P.tx, fontFamily: "system-ui,-apple-system,sans-serif" }}>
@@ -311,6 +320,26 @@ Svara BARA med JSON för ETT steg:
             <Select label="Kontaktnivå" value={lifecycle} onChange={setLifecycle} options={LIFECYCLES} />
           </div>
           
+          {/* Goal selector */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: P.tx2, marginBottom: 6 }}>Mål med sekvensen</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {GOALS.map(g => (
+                <button key={g.id} onClick={() => setGoal(g.id)} style={{
+                  flex: 1, padding: "10px 12px", background: goal === g.id ? P.acS : P.s2,
+                  border: `1px solid ${goal === g.id ? P.ac : P.brd}`, borderRadius: 8,
+                  color: goal === g.id ? P.ac : P.tx2, fontSize: 13, fontWeight: goal === g.id ? 700 : 400,
+                  cursor: "pointer", fontFamily: "inherit", transition: "all .15s", textAlign: "left"
+                }}>
+                  <span style={{ marginRight: 6 }}>{g.icon}</span>{g.label}
+                </button>
+              ))}
+            </div>
+            {selectedGoal && (
+              <div style={{ fontSize: 10, color: P.tx3, marginTop: 4 }}>{selectedGoal.tip}</div>
+            )}
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
             <Input label="Kontaktpersonens namn" value={name} onChange={setName} placeholder="t.ex. Anna" />
             <Input label="Företag" value={company} onChange={setCompany} placeholder="t.ex. Volvo" />
@@ -345,7 +374,8 @@ Svara BARA med JSON för ETT steg:
                 <b style={{ color: P.tx }}>{selectedRole?.label}</b>: {selectedRole?.strategy}<br />
                 <b style={{ color: P.tx }}>{selectedRegion?.label}</b> ({selectedRegion?.reply} svar): {selectedRegion?.note}<br />
                 <b style={{ color: P.tx }}>{selectedIndustry?.label}</b>: {selectedIndustry?.reply} svar i snitt<br />
-                <b style={{ color: P.tx }}>{selectedLifecycle?.label}</b>: {selectedLifecycle?.strategy}
+                <b style={{ color: P.tx }}>{selectedLifecycle?.label}</b>: {selectedLifecycle?.strategy}<br />
+                <b style={{ color: P.tx }}>{selectedGoal?.icon} {selectedGoal?.label}</b>: {selectedGoal?.tip}
                 {(role === "ovrigt" || region === "ovrigt" || industry === "ovrigt") && (
                   <><br /><span style={{ color: P.am }}>Tips: Ju mer specifik du är med roll/bransch/region desto bättre kan AI:n anpassa mailen efter datan.</span></>
                 )}
