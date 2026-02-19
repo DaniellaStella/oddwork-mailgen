@@ -142,13 +142,15 @@ MAILSTRUKTUR (starkaste signalerna):
 - Max 2 frågetecken per mail. 2 frågor = 14.8% svar. 3+ frågor = 0.6% (overload!).
 - Kortare body = bättre. Under 400 tecken = 14.5% vs 400+ = 9.4%.
 
-NAMN-REGEL (VIKTIGT):
-- Hitta ALDRIG på namn. Om inget namn angetts, skriv ALLTID [Förnamn] som placeholder.
-- Om användaren angett ett namn, använd det. Annars: "Hej [Förnamn],"
+NAMN-REGEL (KRITISKT - FÖLJ ALLTID):
+- Hitta ALDRIG på namn. ALLA namn ska vara placeholders inom hakparenteser.
+- Mottagarens namn: Skriv alltid [Förnamn] om inget namn angetts av användaren.
+- Avsändarens namn: Skriv alltid [Ditt namn] - hitta ALDRIG på namn som "Maja", "Erik" etc.
+- Exempel: "Jag heter [Ditt namn] och jobbar som..." INTE "Jag heter Maja och jobbar som..."
 
 ÖPPNING (hur du börjar mailet):
-- ALLTID "Hej [Förnamn]" när namn finns (14.6% svar, open→reply 34.3%). Utan namn: 12.2%.
-- "Jag heter X och jobbar som Y på Oddwork" är OK som intro (11.3% svar, bättre än snitt). Använd det i FÖRSTA mailet till helt kalla kontakter. Inte som öppningsmening utan efter hälsningen.
+- ALLTID "Hej [Förnamn]," som hälsning (14.6% svar, open→reply 34.3%).
+- "Jag heter [Ditt namn] och jobbar på Oddwork" är OK som intro (11.3% svar). Använd det i FÖRSTA mailet till helt kalla kontakter.
 - ALDRIG öppna med "Hoppas allt är bra" / "Hoppas detta mail finner dig väl" (6.4% svar, sämsta öppningen).
 - ALDRIG engelska (5.1% svar).
 - Nämn mottagarens företag eller en specifik observation: "Jag var inne på er hemsida" / "Såg att ni annonserade..." = 12-14% svar (+28-46% vs utan). Visa att du gjort din research.

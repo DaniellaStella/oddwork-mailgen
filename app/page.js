@@ -95,7 +95,7 @@ function buildUserPrompt(role, region, industry, lifecycle, name, company, conte
   prompt += `Branschens svarsfrekvens: ${ind?.reply || 'okänd'}\n`;
   prompt += `Kontaktnivå: ${lc?.strategy || 'Behandla som kall lead.'}\n`;
 
-  prompt += `\nKom ihåg: Syftet är att boka möte men svarsfrekvens är också viktigt. Om inget namn angetts, använd [Förnamn] som placeholder - hitta ALDRIG på namn. Använd rätt approach för just denna kombination av roll × bransch × region. Tonen ska följa användarens val men strategin styrs av datan. INGA talstreck (— –) i texten. Svara BARA med JSON.`;
+  prompt += `\nKom ihåg: Syftet är att boka möte men svarsfrekvens är också viktigt. KRITISKT: Hitta ALDRIG på namn. Mottagare = [Förnamn], avsändare = [Ditt namn]. Använd rätt approach för just denna kombination av roll × bransch × region. Tonen ska följa användarens val men strategin styrs av datan. INGA talstreck (— –) i texten. Svara BARA med JSON.`;
 
   return prompt;
 }
